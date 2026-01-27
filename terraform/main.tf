@@ -28,7 +28,6 @@ resource "proxmox_lxc" "gh-actions" {
     ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCv7OVeUsXnds8CNYb6tY90FXy7tA1Q/3HUhVl7BbnL6l1jA7/sHBL56sooXnKq5jqfXWxcCmnnPhUqAUtOJIffnduQZA0V3VFX78ZZui3BhYBi1YjEU3p4svIfAEl7bIIQn0AOdG1D3AyBE7n1n988JmDkRsS4wgfH+1QgGjezf8ySPqQhMza7uvzoi+AFo8HOEAbKyFZDIAGOMrogaSDFQ5/RBXdVWQnthN2mEIasKOnZtS0ppVjn1SiQCVovaVTgOGWq3oLpPqbOaatYv1BhNyxLf6TO+FN5JNW581UPbJTbpTc0TwecfnZQE51fxNq71Nj7DWF+hC/StQlfm9PmiR3krRsjZrch5WVCS7uB1CNvqaYgWP9ME8aQa589ieOtCXjQ3f1pWYQXuDHjzaN3w/d+4J9fSdNq9o3Bys6kBTfaSGE2Lg0vnwyopDtly+dBnp9BjDANNb6K8vcDNim+a7NSwiI79pqs4BLDSf5O2aSy0gHiw8dTEkmCwxlJg6bQAccsmZV2NsDRIpr3PT7RR3N/GbhooOGFSK/iBGwkk3218jvDt3kVlpPW8fd1VdaKtqX94RM4f6PHQssPQDDv89i4/RIHeMPNUP8V0R1SaoKUIYNg8g52rfK1NKp1TlZaLTAe+mlCbWXNeh56xMIE3ENPJ83ndyhPtp63J1NfAw== samuelnorth47@fedora
     EOT
 
-  // Terraform will crash without rootfs defined
   rootfs {
     storage = "local"
     size    = "8G"
