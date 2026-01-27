@@ -1,0 +1,5 @@
+runner_user: github
+runner_dir: /home/github/actions-runner
+runner_version: "2.314.1"
+github_repo_url: "https://github.com/Samuelnorth47/deploy-lxc-actions-runner"
+# github_runner_token: "{{ lookup('env', 'github_runner_token') }}"

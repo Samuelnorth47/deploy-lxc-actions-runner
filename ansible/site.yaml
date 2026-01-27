@@ -1,0 +1,6 @@
+- hosts: github_runners
+  become: true
+  become_method: su
+
+  roles:
+    - github_runner

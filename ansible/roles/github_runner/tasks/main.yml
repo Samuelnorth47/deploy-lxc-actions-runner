@@ -1,0 +1,90 @@
+- name: Install dependencies
+  apt:
+    name:
+      - curl
+      - tar
+      - git
+    update_cache: yes
+
+- name: Create github runner user
+  user:
+    name: "{{ runner_user }}"
+    shell: /bin/bash
+    home: /home/{{ runner_user }}
+    create_home: true
+
+- name: Create runner directory
+  file:
+    path: "{{ runner_dir }}"
+    state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: "0755"
+
+- name: Download GitHub runner
+  get_url:
+    url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
+    dest: "/tmp/runner.tar.gz"
+
+- name: Extract runner
+  unarchive:
+    src: "/tmp/runner.tar.gz"
+    dest: "{{ runner_dir }}"
+    remote_src: yes
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+
+- name: Check if runner is already configured
+  stat:
+    path: "{{ runner_dir }}/.runner"
+  register: runner_configured
+
+- name: Get GitHub runner registration token
+  uri:
+    url: "https://api.github.com/repos/Samuelnorth47/deploy-lxc-actions-runner/actions/runners/registration-token"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ github_pat }}"
+      Accept: "application/vnd.github+json"
+    status_code: 201
+  register: runner_token_response
+  when: not runner_configured.stat.exists
+
+- name: Set runner token fact
+  set_fact:
+    github_token: "{{ runner_token_response.json.token }}"
+
+
+- name: Configure GitHub runner
+  become: true
+  command:
+    argv:
+      - runuser
+      - -u
+      - github
+      - --
+      - "{{ runner_dir }}/config.sh"
+      - --url
+      - "{{ github_repo_url }}"
+      - --token
+      - "{{ github_token }}"
+      - --unattended
+      - --replace
+  args:
+    chdir: "{{ runner_dir }}"
+  when: not runner_configured.stat.exists
+
+- name: Install systemd unit
+  template:
+    src: github-runner.service.j2
+    dest: /etc/systemd/system/github-runner.service
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start runner
+  systemd:
+    name: github-runner
+    enabled: yes
+    state: started
