@@ -34,38 +34,6 @@ resource "proxmox_lxc" "gh-actions" {
     size    = "8G"
   }
 
-  // Storage Backed Mount Point
-#   mountpoint {
-#     key     = "0"
-#     slot    = 0
-#     storage = "local-lvm"
-#     mp      = "/mnt/container/storage-backed-mount-point"
-#     size    = "12G"
-#   }
-
-#   // Bind Mount Point
-#   mountpoint {
-#     key     = "1"
-#     slot    = 1
-#     storage = "/srv/host/bind-mount-point"
-#     // Without 'volume' defined, Proxmox will try to create a volume with
-#     // the value of 'storage' + : + 'size' (without the trailing G) - e.g.
-#     // "/srv/host/bind-mount-point:256".
-#     // This behaviour looks to be caused by a bug in the provider.
-#     volume  = "/srv/host/bind-mount-point"
-#     mp      = "/mnt/container/bind-mount-point"
-#     size    = "256G"
-#   }
-
-#   // Device Mount Point
-#   mountpoint {
-#     key     = "2"
-#     slot    = 2
-#     storage = "/dev/sdg"
-#     volume  = "/dev/sdg"
-#     mp      = "/mnt/container/device-mount-point"
-#     size    = "32G"
-#   }
   nameserver = "192.168.20.1"
 
   network {
