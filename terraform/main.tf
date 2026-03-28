@@ -56,3 +56,13 @@ resource "null_resource" "install_ssh" {
     EOF
     }
 }
+
+resource "null_resource" "run_ansible" {
+  depends_on = [null_resource.install_ssh]
+
+  provisioner "local-exec" {
+    command = <<EOF
+    cd ../ansible && ansible-playbook site.yaml 
+    EOF
+  }
+}
