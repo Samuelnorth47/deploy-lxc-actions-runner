@@ -1,0 +1,61 @@
+name: "Provisinion Github Actions Runners"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: self-hosted 
+    env:
+      TF_VAR_proxmox_node: mercury.proxmox.home.arpa
+      TF_VAR_proxmox_api_user: root@pam
+      TF_VAR_proxmox_api_token_id: terraform-token
+      TF_VAR_proxmox_api_token_secret: ${{ secrets.PROXMOX_API_TOKEN_SECRET }}
+      TF_VAR_pm_api_token_secret: ${{ secrets.PROXMOX_API_TOKEN_SECRET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: "auto"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.13.4 
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init -input=false -lockfile=readonly
+
+      - name: Terraform Fmt & Validate
+        working-directory: ./terraform
+        run: terraform fmt --recursive -check && terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan -input=false
+
+      - name: Save Plan as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-binary-plan  
+          path: ./terraform/tfplan     
+          retention-days: 7
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -input=false -auto-approve
+  
+
+  ansible:
+    needs: terraform
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Run playbook
+        run: ansible-playbook -i ansible/inventory/hosts ansible/playbook.yml
