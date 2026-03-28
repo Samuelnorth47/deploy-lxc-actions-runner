@@ -2,3 +2,5 @@
 *.tfstate.backup
 .terraform/
 vaultpass.txt
+*.tfvars
+*.pkrvars.hcl
